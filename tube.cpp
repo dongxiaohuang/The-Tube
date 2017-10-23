@@ -299,7 +299,7 @@ int validate_route(char ** map, int height, int width, char start_station[], cha
                 int i = check_destination(map,height,width,--temp_r,temp_c);
                 if( i !=1 )
                     return i;
-                if(!is_station(map, r, c))
+                if(!is_station(map, r, c, destination))
                 {
                     if(last_direction == S)
                         return ERROR_BACKTRACKING_BETWEEN_STATIONS;
@@ -311,7 +311,7 @@ int validate_route(char ** map, int height, int width, char start_station[], cha
                     {
                         line_changed_count = line_changed_count +1;
                         /* CHECK IF CHANGING LINES FROM STATION OR NOT */
-                        if(!is_station(map, r+1,c))
+                        if(!is_station(map, r+1,c, destination))
                             return ERROR_LINE_HOPPING_BETWEEN_STATIONS;
                         /* CHECK FINISHED */
                     }
@@ -328,7 +328,7 @@ int validate_route(char ** map, int height, int width, char start_station[], cha
                 int i = check_destination(map,height,width,++temp_r,temp_c);
                 if( i !=1 )
                     return i;
-                if(!is_station(map, r, c))
+                if(!is_station(map, r, c, destination))
                 {
                     if(last_direction == N)
                         return ERROR_BACKTRACKING_BETWEEN_STATIONS;
@@ -340,7 +340,7 @@ int validate_route(char ** map, int height, int width, char start_station[], cha
                     {
                         line_changed_count = line_changed_count +1;
                         /* CHECK IF CHANGING LINES FROM STATION OR NOT */
-                        if(!is_station(map, r-1,c))
+                        if(!is_station(map, r-1,c, destination))
                             return ERROR_LINE_HOPPING_BETWEEN_STATIONS;
                         /* CHECK FINISHED */
                     }
@@ -356,7 +356,7 @@ int validate_route(char ** map, int height, int width, char start_station[], cha
                 int i = check_destination(map,height,width,temp_r,--temp_c);
                 if( i !=1 )
                     return i;
-                if(!is_station(map, r, c))
+                if(!is_station(map, r, c, destination))
                 {
                     if(last_direction == E)
                         return ERROR_BACKTRACKING_BETWEEN_STATIONS;
@@ -368,7 +368,7 @@ int validate_route(char ** map, int height, int width, char start_station[], cha
                     {
                         line_changed_count = line_changed_count +1;
                         /* CHECK IF CHANGING LINES FROM STATION OR NOT */
-                        if(!is_station(map, r,c+1))
+                        if(!is_station(map, r,c+1, destination))
                             return ERROR_LINE_HOPPING_BETWEEN_STATIONS;
                         /* CHECK FINISHED */
                     }
@@ -384,7 +384,7 @@ int validate_route(char ** map, int height, int width, char start_station[], cha
                 int i = check_destination(map,height,width,temp_r,++temp_c);
                 if( i !=1 )
                     return i;
-                if(!is_station(map, r, c))
+                if(!is_station(map, r, c, destination))
                 {
                     if(last_direction == W)
                         return ERROR_BACKTRACKING_BETWEEN_STATIONS;
@@ -396,7 +396,7 @@ int validate_route(char ** map, int height, int width, char start_station[], cha
                     {
                         line_changed_count = line_changed_count +1;
                         /* CHECK IF CHANGING LINES FROM STATION OR NOT */
-                        if(!is_station(map, r,c-1))
+                        if(!is_station(map, r,c-1, destination))
                             return ERROR_LINE_HOPPING_BETWEEN_STATIONS;
                         /* CHECK FINISHED */
                     }
@@ -413,7 +413,7 @@ int validate_route(char ** map, int height, int width, char start_station[], cha
                 int i = check_destination(map,height,width,--temp_r,++temp_c);
                 if( i !=1 )
                     return i;
-                if(!is_station(map, r, c))
+                if(!is_station(map, r, c, destination))
                 {
                     if(last_direction == SW)
                         return ERROR_BACKTRACKING_BETWEEN_STATIONS;
@@ -425,7 +425,7 @@ int validate_route(char ** map, int height, int width, char start_station[], cha
                     {
                         line_changed_count = line_changed_count +1;
                         /* CHECK IF CHANGING LINES FROM STATION OR NOT */
-                        if(!is_station(map, r+1,c-1))
+                        if(!is_station(map, r+1,c-1, destination))
                             return ERROR_LINE_HOPPING_BETWEEN_STATIONS;
                         /* CHECK FINISHED */
                     }
@@ -442,7 +442,7 @@ int validate_route(char ** map, int height, int width, char start_station[], cha
                 int i = check_destination(map,height,width,--temp_r,--temp_c);
                 if( i !=1 )
                     return i;
-                if(!is_station(map, r, c))
+                if(!is_station(map, r, c, destination))
                 {
                     if(last_direction == SE)
                         return ERROR_BACKTRACKING_BETWEEN_STATIONS;
@@ -454,7 +454,7 @@ int validate_route(char ** map, int height, int width, char start_station[], cha
                     {
                         line_changed_count = line_changed_count +1;
                         /* CHECK IF CHANGING LINES FROM STATION OR NOT */
-                        if(!is_station(map, r+1,c+1))
+                        if(!is_station(map, r+1,c+1, destination))
                             return ERROR_LINE_HOPPING_BETWEEN_STATIONS;
                         /* CHECK FINISHED */
                     }
@@ -472,7 +472,7 @@ int validate_route(char ** map, int height, int width, char start_station[], cha
                 if( i !=1 )
                     return i;
 
-                if(!is_station(map, r, c))
+                if(!is_station(map, r, c, destination))
                 {
                     if(last_direction == NW)
                         return ERROR_BACKTRACKING_BETWEEN_STATIONS;
@@ -484,7 +484,7 @@ int validate_route(char ** map, int height, int width, char start_station[], cha
                     {
                         line_changed_count = line_changed_count +1;
                         /* CHECK IF CHANGING LINES FROM STATION OR NOT */
-                        if(!is_station(map, r-1,c-1))
+                        if(!is_station(map, r-1,c-1, destination))
                             return ERROR_LINE_HOPPING_BETWEEN_STATIONS;
                         /* CHECK FINISHED */
                     }
@@ -502,7 +502,7 @@ int validate_route(char ** map, int height, int width, char start_station[], cha
                 if( i !=1 )
                     return i;
                 last_direction =SW;
-                if(!is_station(map, r, c))
+                if(!is_station(map, r, c, destination))
                 {
                     if(last_direction == NE)
                         return ERROR_BACKTRACKING_BETWEEN_STATIONS;
@@ -514,7 +514,7 @@ int validate_route(char ** map, int height, int width, char start_station[], cha
                     {
                         line_changed_count = line_changed_count +1;
                         /* CHECK IF CHANGING LINES FROM STATION OR NOT */
-                        if(!is_station(map, r-1,c+1))
+                        if(!is_station(map, r-1,c+1, destination))
                             return ERROR_LINE_HOPPING_BETWEEN_STATIONS;
                         /* CHECK FINISHED */
                     }
@@ -531,11 +531,11 @@ int validate_route(char ** map, int height, int width, char start_station[], cha
     }
     /* ROUTE FINISHED*/
 
-    return is_station(map, r,c)? line_changed_count:ERROR_ROUTE_ENDPOINT_IS_NOT_STATION;
+    return is_station(map, r,c, destination)? line_changed_count:ERROR_ROUTE_ENDPOINT_IS_NOT_STATION;
 
 }
 
-bool is_station(char **map, int r, int c)
+bool is_station(char **map, int r, int c, char destination[])
 {
     char station_line[MAX_LEN]; // not be able to use char * without give length;
     char station_symbol;
@@ -544,7 +544,10 @@ bool is_station(char **map, int r, int c)
     {
         station_symbol = station_line[0];
         if(map[r][c] == station_symbol)
+        {
+            strcpy(destination, station_line + 2);
             return true;
+        }
     }
     return false;
 }

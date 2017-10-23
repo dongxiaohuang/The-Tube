@@ -31,6 +31,6 @@ char* get_symbol_for_station_or_line(const char name[]);
 int validate_route(char ** map, int height, int width, char start_station[], char route[],
                    char destination[]);
 
-bool is_station(char **map, int r, int c);
+bool is_station(char **map, int r, int c, char destination[]);
 
 bool is_line(char **map, int r, int c);
