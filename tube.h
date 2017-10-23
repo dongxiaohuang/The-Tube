@@ -9,6 +9,9 @@ enum Direction {N, S, W, E, NE, NW, SE, SW, INVALID_DIRECTION};
 #define ERROR_OFF_TRACK -6
 #define ERROR_OUT_OF_BOUNDS -7
 
+
+
+
 /* pre-supplied function to load a tube map from a file*/
 char** load_map(const char* filename, int& height, int& width);
 
@@ -20,3 +23,14 @@ const char* error_description(int code);
 
 /* presupplied helper function for converting string to Direction enum */
 Direction string_to_direction(const char* token);
+
+bool get_symbol_position(char** map, int height, int width, char target, int &r, int &c);
+
+char* get_symbol_for_station_or_line(const char name[]);
+
+int validate_route(char ** map, int height, int width, char start_station[], char route[],
+                   char destination[]);
+
+bool is_station(char **map, int r, int c);
+
+bool is_line(char **map, int r, int c);
