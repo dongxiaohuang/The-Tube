@@ -1,5 +1,5 @@
-excute: tube.o main.o
-	g++ -g tube.o main.o -o excute
+tube: tube.o main.o
+	g++ -g tube.o main.o -o tube
 
 tube.o: tube.h tube.cpp
 	g++ -Wall -g -c tube.cpp
