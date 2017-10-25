@@ -12,6 +12,7 @@ using namespace std;
 char LINE_PATH[80] = "lines.txt";
 char STATION_PATH[80] = "stations.txt";
 int MAX_LEN = 80;
+
 #include "tube.h"
 
 
@@ -19,10 +20,10 @@ int MAX_LEN = 80;
 	 function definitions to the end of this file. */
 
 /* internal helper function which allocates a dynamic 2D array */
-char** allocate_2D_array(int rows, int columns) {
-    char** m = new char* [rows];
+char **allocate_2D_array(int rows, int columns) {
+    char **m = new char *[rows];
     assert(m);
-    for(int r=0; r<rows; r++) {
+    for (int r = 0; r < rows; r++) {
         m[r] = new char[columns];
         assert(m[r]);
     }
@@ -30,14 +31,14 @@ char** allocate_2D_array(int rows, int columns) {
 }
 
 /* internal helper function which deallocates a dynamic 2D array */
-void deallocate_2D_array(char** m, int rows) {
-    for(int r=0; r<rows; r++)
-        delete [] m[r];
-    delete [] m;
+void deallocate_2D_array(char **m, int rows) {
+    for (int r = 0; r < rows; r++)
+        delete[] m[r];
+    delete[] m;
 }
 
 /* internal helper function which gets the dimensions of a map */
-bool get_map_dimensions(const char* filename, int& height, int& width) {
+bool get_map_dimensions(const char *filename, int &height, int &width) {
     char line[512];
 
     ifstream input(filename);
@@ -45,36 +46,36 @@ bool get_map_dimensions(const char* filename, int& height, int& width) {
     height = width = 0;
 
     input.getline(line, 512);
-    while(input) {
-        if( (int) strlen(line) > width)
+    while (input) {
+        if ((int) strlen(line) > width)
             width = strlen(line);
         height++;
         input.getline(line, 512);
     }
 
-    if(height > 0)
+    if (height > 0)
         return true;
     return false;
 }
 
 /* pre-supplied function to load a tube map from a file*/
-char** load_map(const char* filename, int& height, int& width) {
+char **load_map(const char *filename, int &height, int &width) {
 
     bool success = get_map_dimensions(filename, height, width);
 
-    if(!success) return NULL;
+    if (!success) return NULL;
 
-    char** m = allocate_2D_array(height, width);
+    char **m = allocate_2D_array(height, width);
 
     ifstream input(filename);
 
     char line[512];
     char space[] = " ";
 
-    for(int r = 0; r<height; r++) {
+    for (int r = 0; r < height; r++) {
         input.getline(line, 512);
         strcpy(m[r], line);
-        while( (int) strlen(m[r]) < width ) {
+        while ((int) strlen(m[r]) < width) {
             strcat(m[r], space);
         }
     }
@@ -83,11 +84,11 @@ char** load_map(const char* filename, int& height, int& width) {
 }
 
 /* pre-supplied function to print the tube map */
-void print_map(char** m, int height, int width) {
+void print_map(char **m, int height, int width) {
     cout << setw(2) << " " << " ";
-    for(int c=0; c<width; c++) {
-        if(c && (c % 10) == 0) {
-            cout << c/10;
+    for (int c = 0; c < width; c++) {
+        if (c && (c % 10) == 0) {
+            cout << c / 10;
         } else {
             cout << " ";
         }
@@ -96,20 +97,20 @@ void print_map(char** m, int height, int width) {
     cout << endl;
     cout << setw(2) << " " << " ";
 
-    for(int c=0; c<width; c++) cout << (c % 10);
+    for (int c = 0; c < width; c++) cout << (c % 10);
 
     cout << endl;
 
-    for(int r=0; r<height; r++) {
+    for (int r = 0; r < height; r++) {
         cout << setw(2) << r << " ";
-        for(int c=0; c<width; c++) cout << m[r][c];
+        for (int c = 0; c < width; c++) cout << m[r][c];
         cout << endl;
     }
 }
 
 /* pre-supplied helper function to report the errors encountered in Question 3 */
-const char* error_description(int code) {
-    switch(code) {
+const char *error_description(int code) {
+    switch (code) {
         case ERROR_START_STATION_INVALID:
             return "Start station invalid";
         case ERROR_ROUTE_ENDPOINT_IS_NOT_STATION:
@@ -129,141 +130,127 @@ const char* error_description(int code) {
 }
 
 /* presupplied helper function for converting string to direction enum */
-Direction string_to_direction(const char* token) {
-    const char* strings[] = {"N", "S", "W", "E", "NE", "NW", "SE", "SW"};
-    for(int n=0; n<8; n++) {
-        if(!strcmp(token, strings[n])) return (Direction) n;
+Direction string_to_direction(const char *token) {
+    const char *strings[] = {"N", "S", "W", "E", "NE", "NW", "SE", "SW"};
+    for (int n = 0; n < 8; n++) {
+        if (!strcmp(token, strings[n])) return (Direction) n;
     }
     return INVALID_DIRECTION;
 }
-bool get_symbol_position(char** map, int height, int width, char target, int &r, int &c)
-{
-    for ( r = 0; r < height; r++) {
-        for ( c = 0; c < width; c++) {
-            if(map[r][c] == target) return true;
+
+/* self-defined function for get symbol position */
+bool get_symbol_position(char **map, int height, int width, char target, int &r, int &c) {
+    for (r = 0; r < height; r++) {
+        for (c = 0; c < width; c++) {
+            /* if found return true, and change r and c*/
+            if (map[r][c] == target) return true;
         }
     }
-
+    /* if not found. return false, r having the value -1 and c having the value -1 .*/
     r = -1;
     c = -1;
     return false;
 }
 
-char* get_symbol_for_station_or_line(const char name[])
-{
+/*self-defined function for get the symbol of a station or line, defined below */
+char *get_symbol_for_station_or_line(const char name[]) {
 
-    ifstream station_file, line_file;
     char line_station[MAX_LEN];
     char line_lines[MAX_LEN];
+    /* read file from lines.txt to line_file and read file from stations.txt to station_file */
+    ifstream station_file, line_file;
     station_file.open(STATION_PATH);
     line_file.open(LINE_PATH);
-    if(station_file.fail())
-    {
+    if (station_file.fail()) {
         cout << " sorry we cannot open the file: stations.txt";
         exit(1);
     }
-    if(station_file.fail())
-    {
+    if (station_file.fail()) {
         cout << " sorry we cannot open the file: lines.txt";
         exit(1);
     }
-
+    /* defined two pointer to separate read line from input file to two part, the first part is symbol and the last part is name*/
     char *first_part;
     char *last_part;
+    int isLine = 0; // check if the name is line or not, if it is line then it is no need to check the station file
 
-    while(line_file.getline(line_lines,MAX_LEN)) // read line by line
+    while (line_file.getline(line_lines, MAX_LEN)) // read line by line
     {
-        last_part = line_lines+2;
+        last_part = line_lines + 2; // read line name
+        /* get symbol for first part */
         first_part = line_lines;
-        *(first_part+1) = '\0';
-        if( !strcmp(name,last_part))
-        {
-            return first_part;
-        }
-    }
+        *(first_part + 1) = '\0'; // remain only the symbol
 
-    while(station_file.getline(line_station, MAX_LEN))
-    {
-        last_part = line_station+2;
-        first_part = line_station;
-        *(first_part+1) = '\0';
-        if( ! strcmp(name,last_part))
-        {
+        if (!strcmp(name, last_part)) {
+            isLine = 1;
             return first_part;
         }
     }
-    return (char*) " ";
+    if (!isLine) {
+        while (station_file.getline(line_station, MAX_LEN))// read line by line
+        {
+            last_part = line_station + 2;// read station name
+            /* get symbol for first part */
+            first_part = line_station;
+            *(first_part + 1) = '\0';// remain only the symbol
+
+            if (!strcmp(name, last_part)) {
+                return first_part;
+            }
+        }
+    }
+    /* if not found return space*/
+    return (char *) " ";
 }
+
 /* SELF-DEFINED FUNCTION "check_destination"*/
-int check_destination(char** map, int height, int width, int r, int c)
-{
-    int  bound_back, flag_not_out_front_bound=0;
+int check_destination(char **map, int height, int width, int r, int c) {
+    int bound_back, flag_not_out_front_bound = 0;
     /*CHECK BOUNDS*/
     /*CHECK IF OUT OF BACK BOUND*/
-    if(r <0 || r >height)
+    if (r < 0 || r > height)
         return ERROR_OUT_OF_BOUNDS;
-    for(int col_index = 0; col_index < width; col_index++)
-    {
-        if(map[r][col_index] != ' ')
-        {bound_back = col_index;}
+    for (int col_index = 0; col_index < width; col_index++) {
+        if (map[r][col_index] != ' ') { bound_back = col_index; }
     }
-    if(c > bound_back)
+    if (c > bound_back)
         return ERROR_OUT_OF_BOUNDS;
     /*CHECK IF OUT OF FONT BOUND*/
-    for(int i = 0; i <= c; i++)
-    {
-        if(map[r][i] != ' ')
-        {
+    for (int i = 0; i <= c; i++) {
+        if (map[r][i] != ' ') {
             flag_not_out_front_bound = 1;
             break;
         }
     }
-    if(!flag_not_out_front_bound)
+    if (!flag_not_out_front_bound)
         return ERROR_OUT_OF_BOUNDS;
     /*END CHECK BOUNDS*/
 
-    if(map[r][c] == ' ')
-    {
+    /* CHECK IF OUT OF TRACK */
+    if (map[r][c] == ' ') {
         return ERROR_OFF_TRACK;
     }
 
     return 1;
 }
 
-int validate_route(char ** map, int height, int width, char start_station[], char route[], char destination[])
-{
-//    struct Node
-//    {
-//        int r, c;
-//        Node * next_square;
-//    };
-    int route_step, r, c, line_changed_count =0;
+int validate_route(char **map, int height, int width, char start_station[], char route[], char destination[]) {
+
+    int route_step, r, c, line_changed_count = 0;
     ifstream station_file(STATION_PATH);
-    int right_star_station =0;
+    int right_star_station = 0;
     char station_line[MAX_LEN];
     char *station;
     char last_line = ' ';
-
-
-    //char *start_station_symbol, *destination_symbol;
-
-    /* GET START_STATION SYMBOL */ // it does not work check!!!!!!!!
-//    start_station_symbol = get_symbol_for_station_or_line(start_station);
-//    destination_symbol = get_symbol_for_station_or_line(destination);
-
-
     /* CHECK IT THE START STATION IS VALIFIED OR NOT*/
-    while(station_file.getline(station_line, MAX_LEN))
-    {
-        station = station_line+2;
-        if( !strcmp(station, start_station))
-        {
+    while (station_file.getline(station_line, MAX_LEN)) {
+        station = station_line + 2;
+        if (!strcmp(station, start_station)) {
             right_star_station = 1;
             break;
         }
     }
-    if(!right_star_station)
-    {
+    if (!right_star_station) {
         return ERROR_START_STATION_INVALID;
     }
     /* CHECK FINISHED */
@@ -271,47 +258,37 @@ int validate_route(char ** map, int height, int width, char start_station[], cha
 
     /* GET MAP COORDINATION OF START STATION */
     get_symbol_position(map, height, width, *get_symbol_for_station_or_line(start_station), r, c);
-//    get_symbol_position(map, height, width, *start_station_symbol, r, c); // why wrong
-
-//    /* INITIALIZE THE START NODE */
-//    Node* start_ptr = new Node;
-//    Node* current_ptr =start_ptr;
-//
-//    start_ptr -> c = c;
-//    start_ptr -> r = r;
-//    start_ptr -> next_square = NULL;
 
     /* MOVE AS ROUTE*/
+
     stringstream ss(route);
     string directions;
-    Direction last_direction = INVALID_DIRECTION;
-    while(getline(ss, directions, ','))
-    {
-        char* dir_ptr = &directions[0];
+    Direction last_direction = INVALID_DIRECTION; // THIS IS TO CHECK IF THE ROUTE: BACKTRACKING BETWEEN STATIONS
+    while (getline(ss, directions, ',')) { // READ THE ROUTE STRING AND SPLIT IT BY ',' INTO SEPARATED DIRECTION
+        char *dir_ptr = &directions[0]; // POINT TO DIRECTION
         route_step = string_to_direction(dir_ptr);
-        switch (route_step)
-
-        {
+        switch (route_step) {
             //N, S, W, E, NE, NW, SE, SW, INVALID_DIRECTION
-            case N:
-            {
-                int temp_r = r, temp_c =c;
-                int i = check_destination(map,height,width,--temp_r,temp_c);
-                if( i !=1 )
+            // MOVE STEP BY STEP BY ROUTE STEP
+            case N: {
+                int temp_r = r, temp_c = c;
+                int i = check_destination(map, height, width, --temp_r, temp_c); // CHECK NEXT STEP IS VALID ROUTE OR NOT
+                if (i != 1)
                     return i;
-                if(!is_station(map, r, c, destination))
-                {
-                    if(last_direction == S)
+                // CHECK ERROR BACKTRACKING BETWEEN STATIONS; WE CAN ONLY TAKE REVERSED ROUTE WHEN WE ARE NOW IN A STATION OR WE CANNOT CHANGE TO REVERSED FIRECTION
+                if (!is_station(map, r, c, destination)) {  // NOT IN A STATION NOW
+                    if (last_direction == S)
                         return ERROR_BACKTRACKING_BETWEEN_STATIONS;
                 }
-                r--;
-                if(is_line(map,r,c))
-                {
-                    if(map[r][c] != last_line && last_line != ' ')
-                    {
-                        line_changed_count = line_changed_count +1;
+                // CHECK END;
+
+                r--; // STEP NEXT
+                /* CHECK LINE CHANGED */
+                if (is_line(map, r, c)) {
+                    if (map[r][c] != last_line && last_line != ' ') {
+                        line_changed_count = line_changed_count + 1; // LINE CHANGE AND LINE_CHANGED_COUNT ++
                         /* CHECK IF CHANGING LINES FROM STATION OR NOT */
-                        if(!is_station(map, r+1,c, destination))
+                        if (!is_station(map, r + 1, c, destination))
                             return ERROR_LINE_HOPPING_BETWEEN_STATIONS;
                         /* CHECK FINISHED */
                     }
@@ -322,25 +299,21 @@ int validate_route(char ** map, int height, int width, char start_station[], cha
                 last_direction = N;
                 break;
             }
-            case S:
-            {
-                int temp_r = r, temp_c =c;
-                int i = check_destination(map,height,width,++temp_r,temp_c);
-                if( i !=1 )
+            case S: {
+                int temp_r = r, temp_c = c;
+                int i = check_destination(map, height, width, ++temp_r, temp_c);
+                if (i != 1)
                     return i;
-                if(!is_station(map, r, c, destination))
-                {
-                    if(last_direction == N)
+                if (!is_station(map, r, c, destination)) {
+                    if (last_direction == N)
                         return ERROR_BACKTRACKING_BETWEEN_STATIONS;
                 }
                 r++;
-                if(is_line(map,r,c))
-                {
-                    if(map[r][c] != last_line && last_line != ' ')
-                    {
-                        line_changed_count = line_changed_count +1;
+                if (is_line(map, r, c)) {
+                    if (map[r][c] != last_line && last_line != ' ') {
+                        line_changed_count = line_changed_count + 1;
                         /* CHECK IF CHANGING LINES FROM STATION OR NOT */
-                        if(!is_station(map, r-1,c, destination))
+                        if (!is_station(map, r - 1, c, destination))
                             return ERROR_LINE_HOPPING_BETWEEN_STATIONS;
                         /* CHECK FINISHED */
                     }
@@ -351,24 +324,21 @@ int validate_route(char ** map, int height, int width, char start_station[], cha
                 last_direction = S;
                 break;
             }
-            case W:
-            {   int temp_r = r, temp_c =c;
-                int i = check_destination(map,height,width,temp_r,--temp_c);
-                if( i !=1 )
+            case W: {
+                int temp_r = r, temp_c = c;
+                int i = check_destination(map, height, width, temp_r, --temp_c);
+                if (i != 1)
                     return i;
-                if(!is_station(map, r, c, destination))
-                {
-                    if(last_direction == E)
+                if (!is_station(map, r, c, destination)) {
+                    if (last_direction == E)
                         return ERROR_BACKTRACKING_BETWEEN_STATIONS;
                 }
                 c--;
-                if(is_line(map,r,c))
-                {
-                    if(map[r][c] != last_line && last_line != ' ')
-                    {
-                        line_changed_count = line_changed_count +1;
+                if (is_line(map, r, c)) {
+                    if (map[r][c] != last_line && last_line != ' ') {
+                        line_changed_count = line_changed_count + 1;
                         /* CHECK IF CHANGING LINES FROM STATION OR NOT */
-                        if(!is_station(map, r,c+1, destination))
+                        if (!is_station(map, r, c + 1, destination))
                             return ERROR_LINE_HOPPING_BETWEEN_STATIONS;
                         /* CHECK FINISHED */
                     }
@@ -379,24 +349,21 @@ int validate_route(char ** map, int height, int width, char start_station[], cha
                 last_direction = W;
                 break;
             }
-            case E:
-            {   int temp_r = r, temp_c =c;
-                int i = check_destination(map,height,width,temp_r,++temp_c);
-                if( i !=1 )
+            case E: {
+                int temp_r = r, temp_c = c;
+                int i = check_destination(map, height, width, temp_r, ++temp_c);
+                if (i != 1)
                     return i;
-                if(!is_station(map, r, c, destination))
-                {
-                    if(last_direction == W)
+                if (!is_station(map, r, c, destination)) {
+                    if (last_direction == W)
                         return ERROR_BACKTRACKING_BETWEEN_STATIONS;
                 }
                 c++;
-                if(is_line(map,r,c))
-                {
-                    if(map[r][c] != last_line && last_line != ' ')
-                    {
-                        line_changed_count = line_changed_count +1;
+                if (is_line(map, r, c)) {
+                    if (map[r][c] != last_line && last_line != ' ') {
+                        line_changed_count = line_changed_count + 1;
                         /* CHECK IF CHANGING LINES FROM STATION OR NOT */
-                        if(!is_station(map, r,c-1, destination))
+                        if (!is_station(map, r, c - 1, destination))
                             return ERROR_LINE_HOPPING_BETWEEN_STATIONS;
                         /* CHECK FINISHED */
                     }
@@ -407,25 +374,22 @@ int validate_route(char ** map, int height, int width, char start_station[], cha
                 last_direction = E;
                 break;
             }
-            case NE:
-            {   //TODO: I think we should check check_destination first
-                int temp_r = r, temp_c =c;
-                int i = check_destination(map,height,width,--temp_r,++temp_c);
-                if( i !=1 )
+            case NE: {   //TODO: I think we should check check_destination first
+                int temp_r = r, temp_c = c;
+                int i = check_destination(map, height, width, --temp_r, ++temp_c);
+                if (i != 1)
                     return i;
-                if(!is_station(map, r, c, destination))
-                {
-                    if(last_direction == SW)
+                if (!is_station(map, r, c, destination)) {
+                    if (last_direction == SW)
                         return ERROR_BACKTRACKING_BETWEEN_STATIONS;
                 }
-                r--; c++;
-                if(is_line(map,r,c))
-                {
-                    if(map[r][c] != last_line && last_line != ' ')
-                    {
-                        line_changed_count = line_changed_count +1;
+                r--;
+                c++;
+                if (is_line(map, r, c)) {
+                    if (map[r][c] != last_line && last_line != ' ') {
+                        line_changed_count = line_changed_count + 1;
                         /* CHECK IF CHANGING LINES FROM STATION OR NOT */
-                        if(!is_station(map, r+1,c-1, destination))
+                        if (!is_station(map, r + 1, c - 1, destination))
                             return ERROR_LINE_HOPPING_BETWEEN_STATIONS;
                         /* CHECK FINISHED */
                     }
@@ -436,25 +400,22 @@ int validate_route(char ** map, int height, int width, char start_station[], cha
                 last_direction = NE;
                 break;
             }
-            case NW:
-            {
-                int temp_r = r, temp_c =c;
-                int i = check_destination(map,height,width,--temp_r,--temp_c);
-                if( i !=1 )
+            case NW: {
+                int temp_r = r, temp_c = c;
+                int i = check_destination(map, height, width, --temp_r, --temp_c);
+                if (i != 1)
                     return i;
-                if(!is_station(map, r, c, destination))
-                {
-                    if(last_direction == SE)
+                if (!is_station(map, r, c, destination)) {
+                    if (last_direction == SE)
                         return ERROR_BACKTRACKING_BETWEEN_STATIONS;
                 }
-                r--; c--;
-                if(is_line(map,r,c))
-                {
-                    if(map[r][c] != last_line && last_line != ' ')
-                    {
-                        line_changed_count = line_changed_count +1;
+                r--;
+                c--;
+                if (is_line(map, r, c)) {
+                    if (map[r][c] != last_line && last_line != ' ') {
+                        line_changed_count = line_changed_count + 1;
                         /* CHECK IF CHANGING LINES FROM STATION OR NOT */
-                        if(!is_station(map, r+1,c+1, destination))
+                        if (!is_station(map, r + 1, c + 1, destination))
                             return ERROR_LINE_HOPPING_BETWEEN_STATIONS;
                         /* CHECK FINISHED */
                     }
@@ -465,26 +426,23 @@ int validate_route(char ** map, int height, int width, char start_station[], cha
                 last_direction = NW;
                 break;
             }
-            case SE:
-            {
-                int temp_r = r, temp_c =c;
-                int i = check_destination(map,height,width,++temp_r,++temp_c); // we can't put c-- in it !!!
-                if( i !=1 )
+            case SE: {
+                int temp_r = r, temp_c = c;
+                int i = check_destination(map, height, width, ++temp_r, ++temp_c); // we can't put c-- in it !!!
+                if (i != 1)
                     return i;
 
-                if(!is_station(map, r, c, destination))
-                {
-                    if(last_direction == NW)
+                if (!is_station(map, r, c, destination)) {
+                    if (last_direction == NW)
                         return ERROR_BACKTRACKING_BETWEEN_STATIONS;
                 }
-                r++;c++;
-                if(is_line(map,r,c))
-                {
-                    if(map[r][c] != last_line && last_line != ' ')
-                    {
-                        line_changed_count = line_changed_count +1;
+                r++;
+                c++;
+                if (is_line(map, r, c)) {
+                    if (map[r][c] != last_line && last_line != ' ') {
+                        line_changed_count = line_changed_count + 1;
                         /* CHECK IF CHANGING LINES FROM STATION OR NOT */
-                        if(!is_station(map, r-1,c-1, destination))
+                        if (!is_station(map, r - 1, c - 1, destination))
                             return ERROR_LINE_HOPPING_BETWEEN_STATIONS;
                         /* CHECK FINISHED */
                     }
@@ -495,26 +453,23 @@ int validate_route(char ** map, int height, int width, char start_station[], cha
                 last_direction = SE;
                 break;
             }
-            case SW:
-            {
-                int temp_r = r, temp_c =c;
-                int i = check_destination(map,height,width, ++temp_r, --temp_c);
-                if( i !=1 )
+            case SW: {
+                int temp_r = r, temp_c = c;
+                int i = check_destination(map, height, width, ++temp_r, --temp_c);
+                if (i != 1)
                     return i;
-                last_direction =SW;
-                if(!is_station(map, r, c, destination))
-                {
-                    if(last_direction == NE)
+                last_direction = SW;
+                if (!is_station(map, r, c, destination)) {
+                    if (last_direction == NE)
                         return ERROR_BACKTRACKING_BETWEEN_STATIONS;
                 }
-                r++;c--;
-                if(is_line(map,r,c))
-                {
-                    if(map[r][c] != last_line && last_line != ' ')
-                    {
-                        line_changed_count = line_changed_count +1;
+                r++;
+                c--;
+                if (is_line(map, r, c)) {
+                    if (map[r][c] != last_line && last_line != ' ') {
+                        line_changed_count = line_changed_count + 1;
                         /* CHECK IF CHANGING LINES FROM STATION OR NOT */
-                        if(!is_station(map, r-1,c+1, destination))
+                        if (!is_station(map, r - 1, c + 1, destination))
                             return ERROR_LINE_HOPPING_BETWEEN_STATIONS;
                         /* CHECK FINISHED */
                     }
@@ -529,22 +484,21 @@ int validate_route(char ** map, int height, int width, char start_station[], cha
         }
 
     }
-    /* ROUTE FINISHED*/
+    /* ROUTE MOVED FINISHED*/
 
-    return is_station(map, r,c, destination)? line_changed_count:ERROR_ROUTE_ENDPOINT_IS_NOT_STATION;
+    /* CHECK IF THE DESTINATION IS A STATION OR NOT*/
+    return is_station(map, r, c, destination) ? line_changed_count : ERROR_ROUTE_ENDPOINT_IS_NOT_STATION;
 
 }
 
-bool is_station(char **map, int r, int c, char destination[])
-{
+/*FUNCTION DEFINITION FOR "is_station" */
+bool is_station(char **map, int r, int c, char destination[]) {
     char station_line[MAX_LEN]; // not be able to use char * without give length;
     char station_symbol;
     ifstream stations_file("stations.txt");
-    while(stations_file.getline(station_line,MAX_LEN))
-    {
+    while (stations_file.getline(station_line, MAX_LEN)) {
         station_symbol = station_line[0];
-        if(map[r][c] == station_symbol)
-        {
+        if (map[r][c] == station_symbol) {
             strcpy(destination, station_line + 2);
             return true;
         }
@@ -552,15 +506,14 @@ bool is_station(char **map, int r, int c, char destination[])
     return false;
 }
 
-bool is_line(char **map, int r, int c)
-{
+/*FUNCTION DEFINITION FOR "is_line" */
+bool is_line(char **map, int r, int c) {
     char lines_line[MAX_LEN]; // not be able to use char * without give length;
     char line_symbol;
     ifstream stations_file("lines.txt");
-    while(stations_file.getline(lines_line,MAX_LEN))
-    {
+    while (stations_file.getline(lines_line, MAX_LEN)) {
         line_symbol = lines_line[0];
-        if(map[r][c] == line_symbol)
+        if (map[r][c] == line_symbol)
             return true;
     }
     return false;
