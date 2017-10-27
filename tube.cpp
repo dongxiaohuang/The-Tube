@@ -3,18 +3,10 @@
 #include <fstream>
 #include <cassert>
 #include <cstring>
-#include <cctype>
-#include <cstdlib>
 #include <sstream>
-#include <vector>
-
-using namespace std;
-char LINE_PATH[80] = "lines.txt";
-char STATION_PATH[80] = "stations.txt";
-int MAX_LEN = 80;
-
 #include "tube.h"
-
+using namespace std;
+int MAX_LEN = 80;
 
 /* You are pre-supplied with the functions below. Add your own
 	 function definitions to the end of this file. */
@@ -159,15 +151,13 @@ char *get_symbol_for_station_or_line(const char name[]) {
     char line_lines[MAX_LEN];
     /* read file from lines.txt to line_file and read file from stations.txt to station_file */
     ifstream station_file, line_file;
-    station_file.open(STATION_PATH);
-    line_file.open(LINE_PATH);
+    station_file.open("stations.txt");
+    line_file.open("lines.txt");
     if (station_file.fail()) {
         cout << " sorry we cannot open the file: stations.txt";
-        exit(1);
     }
     if (station_file.fail()) {
         cout << " sorry we cannot open the file: lines.txt";
-        exit(1);
     }
     /* defined two pointer to separate read line from input file to two part, the first part is symbol and the last part is name*/
     char *first_part;
@@ -237,7 +227,7 @@ int check_destination(char **map, int height, int width, int r, int c) {
 int validate_route(char **map, int height, int width, char start_station[], char route[], char destination[]) {
 
     int route_step, r, c, line_changed_count = 0;
-    ifstream station_file(STATION_PATH);
+    ifstream station_file("stations.txt");
     int right_star_station = 0;
     char station_line[MAX_LEN];
     char *station;
@@ -273,13 +263,19 @@ int validate_route(char **map, int height, int width, char start_station[], char
             case N: {
                 int temp_r = r, temp_c = c;
                 int i = check_destination(map, height, width, --temp_r, temp_c); // CHECK NEXT STEP IS VALID ROUTE OR NOT
-                if (i != 1)
+                if (i != 1) // NEXT STEP IS NOT RIGHT
                     return i;
                 // CHECK ERROR BACKTRACKING BETWEEN STATIONS; WE CAN ONLY TAKE REVERSED ROUTE WHEN WE ARE NOW IN A STATION OR WE CANNOT CHANGE TO REVERSED FIRECTION
                 if (!is_station(map, r, c, destination)) {  // NOT IN A STATION NOW
                     if (last_direction == S)
                         return ERROR_BACKTRACKING_BETWEEN_STATIONS;
                 }
+                else
+                {
+                    if (last_direction == S)
+                        line_changed_count++; // TAKE THE TRAIN CHANGE INTO CONSIDERATION
+                }
+
                 // CHECK END;
 
                 r--; // STEP NEXT
@@ -308,6 +304,11 @@ int validate_route(char **map, int height, int width, char start_station[], char
                     if (last_direction == N)
                         return ERROR_BACKTRACKING_BETWEEN_STATIONS;
                 }
+                else
+                {
+                    if (last_direction == N)
+                        line_changed_count++; // TAKE THE TRAIN CHANGE INTO CONSIDERATION
+                }
                 r++;
                 if (is_line(map, r, c)) {
                     if (map[r][c] != last_line && last_line != ' ') {
@@ -332,6 +333,11 @@ int validate_route(char **map, int height, int width, char start_station[], char
                 if (!is_station(map, r, c, destination)) {
                     if (last_direction == E)
                         return ERROR_BACKTRACKING_BETWEEN_STATIONS;
+                }
+                else
+                {
+                    if (last_direction == E)
+                        line_changed_count++; // TAKE THE TRAIN CHANGE INTO CONSIDERATION
                 }
                 c--;
                 if (is_line(map, r, c)) {
@@ -358,6 +364,11 @@ int validate_route(char **map, int height, int width, char start_station[], char
                     if (last_direction == W)
                         return ERROR_BACKTRACKING_BETWEEN_STATIONS;
                 }
+                else
+                {
+                    if (last_direction == W)
+                        line_changed_count++; // TAKE THE TRAIN CHANGE INTO CONSIDERATION
+                }
                 c++;
                 if (is_line(map, r, c)) {
                     if (map[r][c] != last_line && last_line != ' ') {
@@ -382,6 +393,11 @@ int validate_route(char **map, int height, int width, char start_station[], char
                 if (!is_station(map, r, c, destination)) {
                     if (last_direction == SW)
                         return ERROR_BACKTRACKING_BETWEEN_STATIONS;
+                }
+                else
+                {
+                    if (last_direction == SW)
+                        line_changed_count++; // TAKE THE TRAIN CHANGE INTO CONSIDERATION
                 }
                 r--;
                 c++;
@@ -409,6 +425,11 @@ int validate_route(char **map, int height, int width, char start_station[], char
                     if (last_direction == SE)
                         return ERROR_BACKTRACKING_BETWEEN_STATIONS;
                 }
+                else
+                {
+                    if (last_direction == SE)
+                        line_changed_count++; // TAKE THE TRAIN CHANGE INTO CONSIDERATION
+                }
                 r--;
                 c--;
                 if (is_line(map, r, c)) {
@@ -428,13 +449,18 @@ int validate_route(char **map, int height, int width, char start_station[], char
             }
             case SE: {
                 int temp_r = r, temp_c = c;
-                int i = check_destination(map, height, width, ++temp_r, ++temp_c); // we can't put c-- in it !!!
+                int i = check_destination(map, height, width, ++temp_r, ++temp_c);
                 if (i != 1)
                     return i;
 
                 if (!is_station(map, r, c, destination)) {
                     if (last_direction == NW)
                         return ERROR_BACKTRACKING_BETWEEN_STATIONS;
+                }
+                else
+                {
+                    if (last_direction == NW)
+                        line_changed_count++; // TAKE THE TRAIN CHANGE INTO CONSIDERATION
                 }
                 r++;
                 c++;
@@ -462,6 +488,11 @@ int validate_route(char **map, int height, int width, char start_station[], char
                 if (!is_station(map, r, c, destination)) {
                     if (last_direction == NE)
                         return ERROR_BACKTRACKING_BETWEEN_STATIONS;
+                }
+                else
+                {
+                    if (last_direction == NE)
+                        line_changed_count++; // TAKE THE TRAIN CHANGE INTO CONSIDERATION
                 }
                 r++;
                 c--;

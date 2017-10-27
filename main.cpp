@@ -1,12 +1,9 @@
 #include <iostream>
 #include <cassert>
 #include <cstring>
-
+#include "tube.h"
 using namespace std;
 
-#include "tube.h"
-
-char MAP_PATH[80] = "map.txt"; // cannot be put in the header
 int main() {
 
     /* This code illustrates the use of the pre-supplied helper functions and the
@@ -20,7 +17,7 @@ int main() {
     cout << "Loading tube map with load_map():";
 
     /* loads the map from the file "map.txt" and sets height and width */
-    map = load_map(MAP_PATH, height, width);
+    map = load_map("map.txt", height, width);
     assert(map);
     cout << " done (height = " << height << ", width = " << width
          << ")." << endl << endl;
@@ -195,6 +192,32 @@ int main() {
         cout << "is a valid route with " << result <<
              " line change(s) ending at " << destination << "." << endl;
     } else {
+        cout << "is an invalid route (" << error_description(result) << ")" << endl;
+    }
+    cout << endl;
+
+    /* invalid route because   ERROR ROUTE ENDPOINT IS NOT STATION. */
+    strcpy(route, "E,NW");
+    cout << "Starting at Victoria station and taking the steps:" << endl;
+    cout << route << endl;
+    result = validate_route(map, height, width, "Victoria", route, destination);
+    if (result >= 0) {
+        cout << "is a valid route with " << result <<
+             " line change(s) ending at " << destination << "." << endl;
+    } else {
+        cout << "is an invalid route (" << error_description(result) << ")" << endl;
+    }
+    cout << endl;
+    /* Valid route */
+    strcpy(route, "E,E,E,E,E,E,W,W,W,W,W,W");
+    cout << "Starting at Victoria station and taking the steps:" << endl;
+    cout << route << endl;
+    result = validate_route(map, height, width, "Victoria", route, destination);
+    if(result >= 0) {
+        cout << "is a valid route with " << result <<
+             " line change(s) ending at " << destination << "." << endl;
+    }
+    else {
         cout << "is an invalid route (" << error_description(result) << ")" << endl;
     }
     cout << endl;
